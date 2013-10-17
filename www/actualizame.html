@@ -16,17 +16,16 @@ var actualiza;
 
 inicializa_feed();
 
+google.load("feeds", "1");
+
+google.setOnLoadCallback(actualiza_informacion_ubicacion);
+google.setOnLoadCallback(actualiza_informacion_programa);
+
 
 function inicializa_feed()
 {
 alert("Entra a inicializa_feed");
 db2 = openDatabase("ejemplo3.db3", "1.0", "Ministerio de Justicia", 500000);
-db2.transaction( function(tx2) {
-
-			tx2.executeSql("Delete from informacion_programa;");
-			tx2.executeSql("Delete from palabra_clave;");
-
-            });			
 
 db2.transaction(function(tx2) {
             	 tx2.executeSql("SELECT valor_parametro FROM parametro where codigo_tparametro = 4", [],
@@ -60,7 +59,7 @@ function obtener_url()
  alert("url2: "+url2); 
 }
 
-/*	
+	
     function elimina_espacio(info)
 	{
 			 for (var k = 0; k < info.length; k++) 
@@ -81,7 +80,8 @@ function carga_informacion(db,result,objeto)
 		  html+="<ul>";
 		  id_registro = 1;
 		  id_palabra = 1;
-		  for (var i = 0; i < result.feed.entries.length; i++) {
+		  for (var i = 0; i < result.feed.entries.length; i++) 
+		  {
 		    j = i + 1;
             var entry = result.feed.entries[i];
 
@@ -101,6 +101,9 @@ function carga_informacion(db,result,objeto)
 			 var sql = "Insert into ubicacion_programa values ("+id_registro+",'"+valor[4]+"','"+valor[5]+"','"+valor[6]+"','"+valor[7]+"','"+valor[8]+"','"+valor[9]+"','"+valor[10]+"','"+valor[11]+"','"+valor[12]+"','"+valor[13]+"','"+valor[14]+"','"+valor[15]+"');";
 			else
 			 var sql = "Insert into informacion_programa values ("+id_registro+",'"+valor[3]+"','"+valor[4]+"','"+valor[5]+"','"+valor[6]+"','"+valor[8]+"','"+valor[9]+"');";
+			
+			if ((valor.length == 11) && (id_registro == 1)) inserta(db,"Delete from informacion_programa");			
+			if ((valor.length == 17) && (id_registro == 1)) inserta(db,"Delete from ubicacion_programa");			
 
 			inserta(db,sql);
 			
@@ -111,6 +114,8 @@ function carga_informacion(db,result,objeto)
 			{
 			 palabra_clave[j] = elimina_espacio(palabra_clave[j]);
 			 var sql2 = "Insert into palabra_clave values ("+id_palabra+",'"+palabra_clave[j]+"',"+id_registro+");";
+			 
+			 if (id_palabra == 1) inserta(db,"Delete from palabra_clave");			
 
 			 inserta(db,sql2);
 			 
@@ -165,16 +170,14 @@ db.transaction( function(tx) {
 
             });	
 }	
-*/
 
 
-//google.setOnLoadCallback(actualiza_informacion_ubicacion);
-//google.setOnLoadCallback(actualiza_informacion_programa);
+
 
     </script>
   </head>
   <body>
-    <div> Version 1.0.2 </div>
+    <div> Version 1.0.4 </div>
     <div id="feed"></div>
     <div id="feed2"></div>
   </body>
