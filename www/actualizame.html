@@ -1,8 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html class="no-js ui-mobile-rendering" lang="es">
+﻿<html class="no-js ui-mobile-rendering" lang="es">
 <head>
     <title>Actualizame</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
 
@@ -14,11 +14,15 @@ var db2;
 var actualiza; 
 /*Fin definición Variables Globales*/
 
+google.load("feeds", "1");
+
+inicializa_feed();
+
 
 function inicializa_feed()
 {
+alert("Entra a inicializa_feed");
 db2 = openDatabase("ejemplo3.db3", "1.0", "Ministerio de Justicia", 500000);
-alert("Entra a escribe_feed");
 db2.transaction( function(tx2) {
 
 			tx2.executeSql("Delete from informacion_programa;");
@@ -165,10 +169,6 @@ db.transaction( function(tx) {
 }	
 */
 
-google.load("feeds", "1");
-
-
-inicializa_feed();
 
 //google.setOnLoadCallback(actualiza_informacion_ubicacion);
 //google.setOnLoadCallback(actualiza_informacion_programa);
@@ -176,7 +176,7 @@ inicializa_feed();
     </script>
   </head>
   <body>
-    <div> Version 1.0.0 </div>
+    <div> Version 1.0.1 </div>
     <div id="feed"></div>
     <div id="feed2"></div>
   </body>
