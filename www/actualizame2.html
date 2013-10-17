@@ -6,59 +6,7 @@
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
 
-/*Definición Variables Globales*/
-var url = "";	
-var url2 = "";	
-var html="";
-var db2;
-var actualiza; 
-/*Fin definición Variables Globales*/
-
-
-function inicializa_feed()
-{
-db2 = openDatabase("ejemplo3.db3", "1.0", "Ministerio de Justicia", 500000);
-alert("Entra a escribe_feed");
-db2.transaction( function(tx2) {
-
-			tx2.executeSql("Delete from informacion_programa;");
-			tx2.executeSql("Delete from palabra_clave;");
-
-            });			
-
-db2.transaction(function(tx2) {
-            	 tx2.executeSql("SELECT valor_parametro FROM parametro where codigo_tparametro = 4", [],
-                 function(tx2, result2)
-				 {
-                  for(var s=0; s < result2.rows.length; s++) 
-				  {
-				   if (s == 0) actualiza = result2.rows.item(s)['valor_parametro'];	
-				   else actualiza += ";"+result2.rows.item(s)['valor_parametro'];	
-				   if (s == (result2.rows.length-1)) 
-				   obtener_url();
-				  }
-				 }); 
-
-
-            });	
-}
-
-function obtener_url()
-{
- texto = actualiza.split(String.fromCharCode(59));
- for(var s=0; s < texto.length; s++) 
- switch(s)
- {
-  case 0: url = texto[s];
-  break;
-  case 1: url2 = texto[s];
-  break;
- }		
- alert("url: "+url); 
- alert("url2: "+url2); 
-}
-
-/*	
+	
     function elimina_espacio(info)
 	{
 			 for (var k = 0; k < info.length; k++) 
@@ -163,15 +111,63 @@ db.transaction( function(tx) {
 
             });	
 }	
-*/
 
+function escribe()
+{
+texto = actualiza.split(String.fromCharCode(59));
+
+
+for(var s=0; s < texto.length; s++) 
+switch(s)
+{
+ case 0: url = texto[s];
+ break;
+ case 1: url2 = texto[s];
+ break;
+}				  
+
+}
+
+function escribe_feed()
+{
+db2 = openDatabase("ejemplo3.db3", "1.0", "Ministerio de Justicia", 500000);
+alert("Entra a escribe_feed");
+db2.transaction( function(tx2) {
+
+			tx.executeSql("Delete from informacion_programa;");
+			tx.executeSql("Delete from palabra_clave;");
+
+            });			
+
+db2.transaction(function(tx2) {
+
+            	 tx2.executeSql("SELECT valor_parametro FROM parametro where codigo_tparametro = 4", [],
+                 function(tx2, result2)
+				 {
+                  for(var s=0; s < result2.rows.length; s++) 
+				  {
+				   if (s == 0) actualiza = result2.rows.item(s)['valor_parametro'];	
+				   else actualiza += ";"+result2.rows.item(s)['valor_parametro'];	
+				   if (s == (result2.rows.length-1)) 
+				   escribe();
+				  }
+				 }); 
+
+
+            });	
+}
+var url = "";	
+var url2 = "";	
+var html="";
+var db2;
+var actualiza; 
 google.load("feeds", "1");
 
 
-inicializa_feed();
+escribe_feed();
 
-//google.setOnLoadCallback(actualiza_informacion_ubicacion);
-//google.setOnLoadCallback(actualiza_informacion_programa);
+google.setOnLoadCallback(actualiza_informacion_ubicacion);
+google.setOnLoadCallback(actualiza_informacion_programa);
 
     </script>
   </head>
