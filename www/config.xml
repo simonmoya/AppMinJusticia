@@ -103,7 +103,8 @@
     <access origin="https://twitter.com/twitterapi" subdomains="true" /> 
 
 	
-	
+    <!-- Incorporaión de Plugins -->
+	<gap:plugin name="com.phonegap.plugins.childbrowser" version="4.2.1" />	
 	
 	
     <!--
