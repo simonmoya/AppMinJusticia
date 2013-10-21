@@ -1,11 +1,21 @@
 ﻿<html class="no-js ui-mobile-rendering" lang="es">
 <head>
     <title>Actualizame</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-    <script type="text/javascript">
 
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <script src="js/libs/require.js" data-main="js/mobile"></script>
+	  
+        <link rel="stylesheet" href="css/zebra_dialog.css" type="text/css">
+       <link rel="stylesheet" href="css/jquery.mobile-1.3.1.min.css" />
+
+        <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/zebra_dialog.js"></script>
+
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+		
 /*Definición Variables Globales*/
 var url = "";	
 var url2 = "";	
@@ -14,17 +24,9 @@ var db2;
 var actualiza; 
 /*Fin definición Variables Globales*/
 
-inicializa_feed();
-
-google.load("feeds", "1");
-
-google.setOnLoadCallback(actualiza_informacion_ubicacion);
-google.setOnLoadCallback(actualiza_informacion_programa);
-
-
 function inicializa_feed()
 {
-alert("Entra a inicializa_feed");
+//alert("Entra a inicializa_feed");
 db2 = openDatabase("ejemplo3.db3", "1.0", "Ministerio de Justicia", 500000);
 
 db2.transaction(function(tx2) {
@@ -55,8 +57,8 @@ function obtener_url()
   case 1: url2 = texto[s];
   break;
  }		
- alert("url: "+url); 
- alert("url2: "+url2); 
+// alert("url: "+url); 
+// alert("url2: "+url2); 
 }
 
 	
@@ -74,14 +76,14 @@ function obtener_url()
 	 return campo;
 	}
 
-function carga_informacion(db,result,objeto)
+function carga_informacion(db,result,objeto,fin)
 {
           var container = objeto;
-		  html+="<ul>";
 		  id_registro = 1;
 		  id_palabra = 1;
 		  for (var i = 0; i < result.feed.entries.length; i++) 
 		  {
+			if (id_registro == 1) html = "";
 		    j = i + 1;
             var entry = result.feed.entries[i];
 
@@ -96,16 +98,15 @@ function carga_informacion(db,result,objeto)
 		 	 if (j == 7) palabra_clave =  valor[j].split(String.fromCharCode(59));
 		    }
 			
+			if ((valor.length == 11) && (id_registro == 1)) ejecuta_sentencia(db,"Delete from informacion_programa",0,0,0);			
+			if ((valor.length == 17) && (id_registro == 1)) ejecuta_sentencia(db,"Delete from ubicacion_programa",0,0,0);			
 			
 			if (valor.length == 17)
 			 var sql = "Insert into ubicacion_programa values ("+id_registro+",'"+valor[4]+"','"+valor[5]+"','"+valor[6]+"','"+valor[7]+"','"+valor[8]+"','"+valor[9]+"','"+valor[10]+"','"+valor[11]+"','"+valor[12]+"','"+valor[13]+"','"+valor[14]+"','"+valor[15]+"');";
 			else
 			 var sql = "Insert into informacion_programa values ("+id_registro+",'"+valor[3]+"','"+valor[4]+"','"+valor[5]+"','"+valor[6]+"','"+valor[8]+"','"+valor[9]+"');";
 			
-			if ((valor.length == 11) && (id_registro == 1)) inserta(db,"Delete from informacion_programa");			
-			if ((valor.length == 17) && (id_registro == 1)) inserta(db,"Delete from ubicacion_programa");			
-
-			inserta(db,sql);
+			ejecuta_sentencia(db,sql,id_registro,result.feed.entries.length,fin);
 			
 			html+='<li>';
 			html+='<pre>'+sql+'</pre>';
@@ -115,9 +116,9 @@ function carga_informacion(db,result,objeto)
 			 palabra_clave[j] = elimina_espacio(palabra_clave[j]);
 			 var sql2 = "Insert into palabra_clave values ("+id_palabra+",'"+palabra_clave[j]+"',"+id_registro+");";
 			 
-			 if (id_palabra == 1) inserta(db,"Delete from palabra_clave");			
+			 if (id_palabra == 1) ejecuta_sentencia(db,"Delete from palabra_clave",0,0,0);			
 
-			 inserta(db,sql2);
+			 ejecuta_sentencia(db,sql2,0,0,0);
 			 
 			 id_palabra++;
 			 html+='<pre>'+sql2+'</pre>';
@@ -126,9 +127,10 @@ function carga_informacion(db,result,objeto)
 			html+='</li>';
 //			alert(valor[4]);
 			id_registro++;
+
           }
 		  html+="<ul>";
-		  container.innerHTML=html;
+//		  container.innerHTML=html;
 
 }	
 	
@@ -140,9 +142,8 @@ function carga_informacion(db,result,objeto)
      feed.setNumEntries(1000000);
      feed.load(function(result) {
         if (!result.error) {
-//		  alert(result.feed.entries.length);		 
-			alert("Entra a actualiza_informacion_ubicacion");
-			carga_informacion(db,result,document.getElementById("feed2"));						
+//			alert("Entra a actualiza_informacion_ubicacion");
+			carga_informacion(db,result,document.getElementById("feed2"),0);						
         }
       });
     }
@@ -155,30 +156,53 @@ function carga_informacion(db,result,objeto)
      feed.setNumEntries(1000000);
      feed.load(function(result) {
         if (!result.error) {
-			alert("Entra a actualiza_informacion_programa");
-			carga_informacion(db,result,document.getElementById("feed"));						
+//			alert("Entra a actualiza_informacion_programa");
+			carga_informacion(db,result,document.getElementById("feed"),1);						
         }
       });
     }
 
 	
-function inserta(db,sql)
+function ejecuta_sentencia(db,sql,registro,total_registro,fin)
 {
-db.transaction( function(tx) {
-//alert("Este es: "+sql);
-			tx.executeSql(sql);
+        db.transaction( function(tx) {
+            tx.executeSql(sql, [],
+                function(tx, result){
+				  if ((fin == 1) && (registro == total_registro))
+				  {
+				   setTimeout(function(){
+				   $.Zebra_Dialog('<strong>Actualización Exitosa', {            
+				    'onClose':  function(caption) 
+				    {
+				     window.history.back();
+				    }
+				    });			 
+				   },5000);
+				  }
+                });
+        });
 
-            });	
 }	
-
-
-
-
     </script>
-  </head>
+		
+    </head>
+
+    <body>
+
   <body>
-    <div> Version 1.0.4 </div>
-    <div id="feed"></div>
-    <div id="feed2"></div>
-  </body>
+    <div> El proceso de actualización puede tardar entre 20 segundos y 30 segundos dependiendo de las características de su dispositivo, si transcurrido el tiempo máximo no aparece el mensaje Actualización Exitosa, por favor pulse el botón Actualízame </div>
+    <input type="button" data-theme="b" value="Actualizame" onclick="location.reload();">
+    <div id="feed" align="center"></div>
+    <div id="feed2" align="center"></div>
+	<script> 
+	 inicializa_feed();
+
+	 google.load("feeds", "1");
+
+	 google.setOnLoadCallback(actualiza_informacion_ubicacion);
+	 google.setOnLoadCallback(actualiza_informacion_programa);	 
+	</script>	
+	
+    </body>
+
 </html>
